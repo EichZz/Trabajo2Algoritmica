@@ -145,6 +145,7 @@ public class Trabajo2Algoritmica {
     public static int[] resolverVueltaAtras(double[][] matdistancias) {
         int[] rutaActual = getVectorInicial(matdistancias.length);
         int[] rutaResul = Arrays.copyOf(rutaActual, matdistancias.length);
+        rutaAleatoria(rutaResul);
         arbolBacktracking(rutaActual, rutaResul, matdistancias, 1);
         return rutaResul;
     }
@@ -152,7 +153,7 @@ public class Trabajo2Algoritmica {
     public static void arbolBacktracking(int[] rutaActual, int[] rutaResul, double[][] matdistancias, int pos) {
         if (pos < rutaActual.length) {
 
-            for (int i = pos; i < rutaActual.length; i++) {
+            for (int i = pos + 1; i < rutaActual.length; i++) {
 
                 int aux = rutaActual[i];
                 rutaActual[i] = rutaActual[pos];
@@ -190,9 +191,10 @@ public class Trabajo2Algoritmica {
         }
 
     }
-
+    
+    
     public static void main(String[] args) throws IOException {
-        double[][] matriz = GenerarMatriz();
+        /* double[][] matriz = GenerarMatriz();
         //para cambiar el fichero de prueba hay que cambiar el nombre al principio de GenerarMatriz()
         int[] resultado = resolverVueltaAtras(matriz);
         System.out.print("[");
@@ -200,8 +202,18 @@ public class Trabajo2Algoritmica {
             System.out.print(resultado[i] + ", ");
         }
         System.out.print("]");
+         */
+        int ruta[] = {0, 1, 2, 3};
+        int[][] mat = new int[6][4];
+        matrizDV(ruta, 1, mat, 0);
+        System.out.println("tusmula");
     }
-    
-
-    
+    /*
+    [0 1 2 3]
+    [0 1 3 2]
+    [0 2 1 3]
+    [0 2 3 1]
+    [0 3 2 1]
+    [0 3 1 2]    
+     */
 }
