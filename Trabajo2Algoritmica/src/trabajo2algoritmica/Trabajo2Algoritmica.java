@@ -230,11 +230,11 @@ public class Trabajo2Algoritmica {
     }
 
     public static int[] resolverDV() throws IOException {
-        
+
         double[][] matdistancias = GenerarMatriz();
 
         int mat[][] = matrizDV(getVectorInicial(matdistancias.length));
-        
+
         return funcionDV(mat, matdistancias, 0, matdistancias.length - 1);
     }
 
@@ -256,7 +256,86 @@ public class Trabajo2Algoritmica {
         }
         return rutaActual;
     }
-  
+
+    public static int[] voraz(double[][] matDistancias) {
+        int dim = matDistancias[0].length;
+        int[] ruta = new int[dim];
+        int origen = 0, destino = 1;
+        for (int i = 0; i < dim; i++) {
+            for (int j = i + 1; j < dim; j++) {
+                if (matDistancias[origen][destino] > matDistancias[i][j]) {
+                    origen = i;
+                    destino = j;
+                }
+            }
+        }
+        ruta[0] = origen;
+        ruta[1] = destino;
+
+        origen = destino;
+        dim--;
+        int pos = 2;
+        while (dim > 1) {
+            destino = obtenerDestino(ruta, pos);
+            for (int i = 1; i < dim; i++) {
+                if (!contains(i, ruta, pos)) {
+                    if (matDistancias[origen][destino] > matDistancias[origen][i]) {
+                        destino = i;
+                    } else if (matDistancias[origen][destino] == 0) {
+                        destino = i;
+                    }
+                }
+            }
+            ruta[pos] = destino;
+            pos++;
+
+            origen = destino;
+            dim--;
+        }
+        return ruta;
+    }
+
+    public static boolean contains(int ciudad, int[] ruta, int pos) {
+        boolean enc = false;
+        int i = 0;
+        while (i < pos && !enc) {
+            if (ruta[i] == ciudad) {
+                enc = true;
+            }
+            i++;
+        }
+        return enc;
+    }
+
+    public static int obtenerDestino(int[] ruta, int pos) {
+        int i = 0;
+        boolean enc = false;
+        while (i < ruta.length && !enc) {
+            if (!contains(i, ruta, pos)) {
+                enc = true;
+            } else {
+                i++;
+            }
+        }
+        return i;
+    }
+
+    public static int[] resolverBusquedaLocal(double[][] matdistancias, int criterioParada) {
+        int[] mejorRuta = voraz(matdistancias);
+        int[] rutaActual = Arrays.copyOf(mejorRuta, mejorRuta.length);
+       
+        int i = 0;        
+        while (i < criterioParada) {
+            int[] rutaVecina = generaVecino(rutaActual);
+            if(acepta(rutaVecina))
+                rutaActual = rutaVecina;
+            if(getDistanciaTotal(mejorRuta, matdistancias)> getDistanciaTotal(rutaActual, matdistancias))
+                mejorRuta = rutaActual;
+            criterioParada ++;
+        }
+        return mejorRuta;
+    }
+
     public static void main(String[] args) throws IOException {
         /* double[][] matriz = GenerarMatriz();
         //para cambiar el fichero de prueba hay que cambiar el nombre al principio de GenerarMatriz()
@@ -267,11 +346,18 @@ public class Trabajo2Algoritmica {
         }
         System.out.print("]");
          */
+ /*
         int[] resultado = resolverDV();
-        for(int i =0;i<resultado.length;i++){
+        for (int i = 0; i < resultado.length; i++) {
             System.out.print(resultado[i] + ", ");
         }
         System.out.println("tusmula");
+         */
+        double[][] mat = GenerarMatriz();
+        int[] resultado = voraz(mat);
+        for (int i = 0; i < resultado.length; i++) {
+            System.out.print(resultado[i] + ", ");
+        }
     }
     /*
     [0 1 2 3] inicio
@@ -281,4 +367,12 @@ public class Trabajo2Algoritmica {
     [0 3 2 1]
     [0 3 1 2] fin   
      */
+
+    private static int[] generaVecino(int[] rutaActual) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private static boolean acepta(int[] rutaVecina) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
