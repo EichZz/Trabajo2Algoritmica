@@ -142,7 +142,7 @@ public class Trabajo2Algoritmica {
     }
 
     //metodos de resolucion con vuelta atras
-    public static int[] resolverVueltaAtras(double[][] matdistancias) {
+    public static int[] resolverBacktracking(double[][] matdistancias) {
         int[] rutaActual = getVectorInicial(matdistancias.length);
         int[] rutaResul = Arrays.copyOf(rutaActual, matdistancias.length);
         rutaAleatoria(rutaResul);
@@ -166,13 +166,41 @@ public class Trabajo2Algoritmica {
                 }
                 if (pos == rutaActual.length - 1) {
                     if (getDistanciaTotal(rutaResul, matdistancias) > getDistanciaTotal(rutaActual, matdistancias)) {
-                        rutaResul = Arrays.copyOf(rutaActual, rutaActual.length);
+                        System.arraycopy(rutaResul, 0, rutaActual, 0, rutaResul.length);
                     }
                 }
 
                 aux = rutaActual[i];
                 rutaActual[i] = rutaActual[pos];
                 rutaActual[pos] = aux;
+            }
+        }
+    }
+
+    public static int[] resolverVueltaAtras() throws IOException {
+        double[][] matdistancias =GenerarMatriz();
+        int[] rutaMejor = voraz(matdistancias);
+        int[] ruta = new int[rutaMejor.length];
+        ruta[0]=rutaMejor[0];
+        vueltaAtras(ruta, rutaMejor, 1, matdistancias);
+        return rutaMejor;
+    }
+
+    public static void vueltaAtras(int[] ruta, int[] rutaMejor, int pos, double[][] matdistancias) {
+        if (pos == ruta.length - 1) {
+            if (getDistanciaTotal(rutaMejor, matdistancias) > getDistanciaTotal(ruta, matdistancias)) {
+                System.arraycopy(ruta, 0, rutaMejor, 0, ruta.length);
+            }
+        } else {
+            int ciudad = 0;
+            while (ciudad < ruta.length) {
+                if (!contains(ciudad, ruta, pos)) {
+                    ruta[pos] = ciudad;
+                    if (getDistanciaTotal(rutaMejor, matdistancias) > getDistanciaParcial(ruta, matdistancias, pos)) {
+                        vueltaAtras(ruta, rutaMejor, pos + 1, matdistancias);
+                    }
+                }
+                ciudad++;
             }
         }
     }
@@ -323,15 +351,17 @@ public class Trabajo2Algoritmica {
     public static int[] resolverBusquedaLocal(double[][] matdistancias, int criterioParada) {
         int[] mejorRuta = voraz(matdistancias);
         int[] rutaActual = Arrays.copyOf(mejorRuta, mejorRuta.length);
-       
-        int i = 0;        
+
+        int i = 0;
         while (i < criterioParada) {
             int[] rutaVecina = generaVecino(rutaActual);
-            if(acepta(rutaVecina))
+            if (acepta(rutaVecina)) {
                 rutaActual = rutaVecina;
-            if(getDistanciaTotal(mejorRuta, matdistancias)> getDistanciaTotal(rutaActual, matdistancias))
+            }
+            if (getDistanciaTotal(mejorRuta, matdistancias) > getDistanciaTotal(rutaActual, matdistancias)) {
                 mejorRuta = rutaActual;
-            criterioParada ++;
+            }
+            criterioParada++;
         }
         return mejorRuta;
     }
@@ -359,6 +389,7 @@ public class Trabajo2Algoritmica {
             System.out.print(resultado[i] + ", ");
         }
     }
+
     /*
     [0 1 2 3] inicio
     [0 1 3 2]
@@ -367,7 +398,6 @@ public class Trabajo2Algoritmica {
     [0 3 2 1]
     [0 3 1 2] fin   
      */
-
     private static int[] generaVecino(int[] rutaActual) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
