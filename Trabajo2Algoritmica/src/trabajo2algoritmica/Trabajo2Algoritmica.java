@@ -257,6 +257,28 @@ public class Trabajo2Algoritmica {
         return rutaActual;
     }
 
+    private void reducirMatriz(int index, int[][] mat) {
+        int max = mat.length;
+        int[][] matrizaux = new int[max - 1][max - 1];
+
+        int posi = 0;
+        for (int i = 0; i < max; i++) {
+            if (i != index) {
+                int posj = 0;
+                for (int j = 0; j < max; j++) {
+                    if (j != index) {
+                        matrizaux[i - posi][j - posj] = mat[i][j];
+                    } else {
+                        posj++;
+                    }
+                }
+            } else {
+                posi++;
+            }
+        }
+        mat = matrizaux;
+    }
+    
     public static void main(String[] args) throws IOException {
         /* double[][] matriz = GenerarMatriz();
         //para cambiar el fichero de prueba hay que cambiar el nombre al principio de GenerarMatriz()
