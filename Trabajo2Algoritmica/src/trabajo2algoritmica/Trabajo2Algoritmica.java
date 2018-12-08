@@ -141,7 +141,7 @@ public class Trabajo2Algoritmica {
         return matdistancias;
     }
 
-    //metodos de resolucion con fuerza bruta
+    //metodos de resolucion con vuelta atras
     public static int[] resolverVueltaAtras(double[][] matdistancias) {
         int[] rutaActual = getVectorInicial(matdistancias.length);
         int[] rutaResul = Arrays.copyOf(rutaActual, matdistancias.length);
@@ -267,6 +267,10 @@ public class Trabajo2Algoritmica {
         }
         System.out.print("]");
          */
+        int[] resultado = resolverDV();
+        for(int i =0;i<resultado.length;i++){
+            System.out.print(resultado[i] + ", ");
+        }
         System.out.println("tusmula");
     }
     /*
