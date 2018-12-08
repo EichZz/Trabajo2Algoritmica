@@ -232,11 +232,21 @@ public class Trabajo2Algoritmica {
     public static int[] resolverDV() throws IOException {
         double[][] matdistancias = GenerarMatriz();
         int[] rutaActual = getVectorInicial(matdistancias.length);
-        int mat[][] = matrizDV(rutaActual);
+        int[][] mat = matrizDV(rutaActual);
         //funcion divide y venceras
     }
 
-    //funcion divide y venceras
+    public static int[] funcionDV(int[][] matRutas, double[][] matdistancias, int ini, int fin) {
+        if (ini == fin) {
+            return matRutas[ini];
+        }
+        else {
+            double sup = getDistanciaTotal(funcionDV(matRutas, matdistancias, ini, (fin-ini)/2), matdistancias);
+        if(getDistanciaTotal(matRutas[ini], matdistancias)<getDistanciaTotal(matRutas[fin], matdistancias))
+        }
+
+    }
+
     public static void main(String[] args) throws IOException {
         /* double[][] matriz = GenerarMatriz();
         //para cambiar el fichero de prueba hay que cambiar el nombre al principio de GenerarMatriz()
@@ -251,11 +261,11 @@ public class Trabajo2Algoritmica {
         System.out.println("tusmula");
     }
     /*
-    [0 1 2 3]
+    [0 1 2 3] inicio
     [0 1 3 2]
     [0 2 1 3]
     [0 2 3 1]
     [0 3 2 1]
-    [0 3 1 2]    
+    [0 3 1 2] fin   
      */
 }
