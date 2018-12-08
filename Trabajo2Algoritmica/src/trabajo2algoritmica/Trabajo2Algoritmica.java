@@ -230,21 +230,31 @@ public class Trabajo2Algoritmica {
     }
 
     public static int[] resolverDV() throws IOException {
+        
         double[][] matdistancias = GenerarMatriz();
-        int[] rutaActual = getVectorInicial(matdistancias.length);
-        int[][] mat = matrizDV(rutaActual);
-        //funcion divide y venceras
+
+        int mat[][] = matrizDV(getVectorInicial(matdistancias.length));
+        
+        return funcionDV(mat, matdistancias, 0, matdistancias.length - 1);
     }
 
     public static int[] funcionDV(int[][] matRutas, double[][] matdistancias, int ini, int fin) {
+        int[] rutaActual;
         if (ini == fin) {
-            return matRutas[ini];
-        }
-        else {
-            double sup = getDistanciaTotal(funcionDV(matRutas, matdistancias, ini, (fin-ini)/2), matdistancias);
-        if(getDistanciaTotal(matRutas[ini], matdistancias)<getDistanciaTotal(matRutas[fin], matdistancias))
-        }
+            rutaActual = matRutas[ini];
+        } else {
+            int[] rutaLeft = funcionDV(matRutas, matdistancias, ini, (fin + ini) / 2);
+            int[] rutaRight = funcionDV(matRutas, matdistancias, (fin + ini) / 2 + 1, fin);
+            double left = getDistanciaTotal(rutaLeft, matdistancias);
+            double right = getDistanciaTotal(rutaRight, matdistancias);
 
+            if (left < right) {
+                rutaActual = rutaLeft;
+            } else {
+                rutaActual = rutaRight;
+            }
+        }
+        return rutaActual;
     }
 
     public static void main(String[] args) throws IOException {
@@ -257,7 +267,6 @@ public class Trabajo2Algoritmica {
         }
         System.out.print("]");
          */
-        int mat[][] = matrizDV();
         System.out.println("tusmula");
     }
     /*
