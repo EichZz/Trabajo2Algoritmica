@@ -214,9 +214,8 @@ public class Trabajo2Algoritmica {
         }
     }
 
-    public static int[][] matrizDV() {
-        int ruta[] = {0, 1, 2, 3};
-        int n = ruta.length-1;
+    public static int[][] matrizDV(int[] ruta) {
+        int n = ruta.length - 1;
         int f = 1;
         while (n != 0) {
             f = f * n;
@@ -230,6 +229,14 @@ public class Trabajo2Algoritmica {
         return mat;
     }
 
+    public static int[] resolverDV() throws IOException {
+        double[][] matdistancias = GenerarMatriz();
+        int[] rutaActual = getVectorInicial(matdistancias.length);
+        int mat[][] = matrizDV(rutaActual);
+        //funcion divide y venceras
+    }
+
+    //funcion divide y venceras
     public static void main(String[] args) throws IOException {
         /* double[][] matriz = GenerarMatriz();
         //para cambiar el fichero de prueba hay que cambiar el nombre al principio de GenerarMatriz()
