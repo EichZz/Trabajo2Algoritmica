@@ -166,7 +166,7 @@ public class Trabajo2Algoritmica {
                 }
                 if (pos == rutaActual.length - 1) {
                     if (getDistanciaTotal(rutaResul, matdistancias) > getDistanciaTotal(rutaActual, matdistancias)) {
-                        System.arraycopy(rutaResul, 0, rutaActual, 0, rutaResul.length);
+                        System.arraycopy(rutaActual, 0, rutaResul, 0, rutaResul.length);
                     }
                 }
 
@@ -178,10 +178,10 @@ public class Trabajo2Algoritmica {
     }
 
     public static int[] resolverVueltaAtras() throws IOException {
-        double[][] matdistancias =GenerarMatriz();
+        double[][] matdistancias = GenerarMatriz();
         int[] rutaMejor = voraz(matdistancias);
         int[] ruta = new int[rutaMejor.length];
-        ruta[0]=rutaMejor[0];
+        ruta[0] = rutaMejor[0];
         vueltaAtras(ruta, rutaMejor, 1, matdistancias);
         return rutaMejor;
     }
