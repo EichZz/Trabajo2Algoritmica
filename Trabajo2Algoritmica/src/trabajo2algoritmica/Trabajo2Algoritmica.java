@@ -214,9 +214,8 @@ public class Trabajo2Algoritmica {
         }
     }
 
-    public static int[][] matrizDV() {
-        int ruta[] = {0, 1, 2, 3};
-        int n = ruta.length-1;
+    public static int[][] matrizDV(int[] ruta) {
+        int n = ruta.length - 1;
         int f = 1;
         while (n != 0) {
             f = f * n;
@@ -230,16 +229,35 @@ public class Trabajo2Algoritmica {
         return mat;
     }
 
-    public static void resolverDV() throws IOException{
-    double[][]matdistancias = GenerarMatriz();
-    
-    
-    
-    
-    
-    
+    public static int[] resolverDV() throws IOException {
+        
+        double[][] matdistancias = GenerarMatriz();
+        
+        int mat[][] = matrizDV(getVectorInicial(matdistancias.length));
+        
+        return funcionDV(mat, matdistancias, 0, matdistancias.length - 1);
     }
-    
+
+    public static int[] funcionDV(int[][] matRutas, double[][] matdistancias, int ini, int fin) {
+        int[] rutaActual = null;
+        if (ini == fin) {
+            rutaActual = matRutas[ini];
+        } else {
+            int[] rutaLeft = funcionDV(matRutas, matdistancias, ini, (fin + ini) / 2);
+            int[] rutaRight = funcionDV(matRutas, matdistancias, (fin + ini) / 2 + 1, fin);
+            double left = getDistanciaTotal(rutaLeft, matdistancias);
+            double right = getDistanciaTotal(rutaRight, matdistancias);
+
+            if (left < right) {
+                rutaActual = rutaLeft;
+            } else {
+                rutaActual = rutaRight;
+            }
+        }
+        return rutaActual;
+    }
+
+    //funcion divide y venceras
     public static void main(String[] args) throws IOException {
         /* double[][] matriz = GenerarMatriz();
         //para cambiar el fichero de prueba hay que cambiar el nombre al principio de GenerarMatriz()
@@ -250,7 +268,6 @@ public class Trabajo2Algoritmica {
         }
         System.out.print("]");
          */
-        int mat[][] = matrizDV();
         System.out.println("tusmula");
     }
     /*
