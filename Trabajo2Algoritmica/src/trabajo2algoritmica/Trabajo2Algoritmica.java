@@ -230,11 +230,11 @@ public class Trabajo2Algoritmica {
     }
 
     public static int[] resolverDV() throws IOException {
-        
+
         double[][] matdistancias = GenerarMatriz();
 
         int mat[][] = matrizDV(getVectorInicial(matdistancias.length));
-        
+
         return funcionDV(mat, matdistancias, 0, matdistancias.length - 1);
     }
 
@@ -257,28 +257,69 @@ public class Trabajo2Algoritmica {
         return rutaActual;
     }
 
-    private void reducirMatriz(int index, int[][] mat) {
-        int max = mat.length;
-        int[][] matrizaux = new int[max - 1][max - 1];
-
-        int posi = 0;
-        for (int i = 0; i < max; i++) {
-            if (i != index) {
-                int posj = 0;
-                for (int j = 0; j < max; j++) {
-                    if (j != index) {
-                        matrizaux[i - posi][j - posj] = mat[i][j];
-                    } else {
-                        posj++;
-                    }
+    public static int[] voraz(double[][] matDistancias) {
+        int dim = matDistancias[0].length;
+        int[] ruta = new int[dim];
+        int origen = 0, destino = 1;
+        for (int i = 0; i < dim; i++) {
+            for (int j = i + 1; j < dim; j++) {
+                if (matDistancias[origen][destino] > matDistancias[i][j]) {
+                    origen = i;
+                    destino = j;
                 }
-            } else {
-                posi++;
             }
         }
-        mat = matrizaux;
+        ruta[0] = origen;
+        ruta[1] = destino;
+
+        origen = destino;
+        dim--;
+        int pos = 2;
+        while (dim > 1) {
+            destino = obtenerDestino(ruta, pos);
+            for (int i = 1; i < dim; i++) {
+                if (!contains(i, ruta, pos)) {
+                    if (matDistancias[origen][destino] > matDistancias[origen][i]) {
+                        destino = i;
+                    } else if (matDistancias[origen][destino] == 0) {
+                        destino = i;
+                    }
+                }
+            }
+            ruta[pos] = destino;
+            pos++;
+
+            origen = destino;
+            dim--;
+        }
+        return ruta;
     }
-    
+
+    public static boolean contains(int ciudad, int[] ruta, int pos) {
+        boolean enc = false;
+        int i = 0;
+        while (i < pos && !enc) {
+            if (ruta[i] == ciudad) {
+                enc = true;
+            }
+            i++;
+        }
+        return enc;
+    }
+
+    public static int obtenerDestino(int[] ruta, int pos) {
+        int i = 0;
+        boolean enc = false;
+        while (i < ruta.length && !enc) {
+            if (!contains(i, ruta, pos)) {
+                enc = true;
+            } else {
+                i++;
+            }
+        }
+        return i;
+    }
+
     public static void main(String[] args) throws IOException {
         /* double[][] matriz = GenerarMatriz();
         //para cambiar el fichero de prueba hay que cambiar el nombre al principio de GenerarMatriz()
@@ -289,11 +330,18 @@ public class Trabajo2Algoritmica {
         }
         System.out.print("]");
          */
+ /*
         int[] resultado = resolverDV();
-        for(int i =0;i<resultado.length;i++){
+        for (int i = 0; i < resultado.length; i++) {
             System.out.print(resultado[i] + ", ");
         }
         System.out.println("tusmula");
+         */
+        double[][] mat = GenerarMatriz();
+        int[] resultado = voraz(mat);
+        for (int i = 0; i < resultado.length; i++) {
+            System.out.print(resultado[i] + ", ");
+        }
     }
     /*
     [0 1 2 3] inicio
