@@ -142,11 +142,12 @@ public class Trabajo2Algoritmica {
     }
 
     //metodos de resolucion con vuelta atras
-    public static int[] resolverBacktracking(double[][] matdistancias) {
+    public static int[] resolverBacktracking() throws IOException {
+        double[][] matdistancias = GenerarMatriz();
         int[] rutaActual = getVectorInicial(matdistancias.length);
         int[] rutaResul = Arrays.copyOf(rutaActual, matdistancias.length);
         rutaAleatoria(rutaResul);
-        arbolBacktracking(rutaActual, rutaResul, matdistancias, 1);
+        arbolBacktracking(rutaActual, rutaResul, matdistancias, 0);
         return rutaResul;
     }
 
@@ -181,13 +182,12 @@ public class Trabajo2Algoritmica {
         double[][] matdistancias = GenerarMatriz();
         int[] rutaMejor = voraz(matdistancias);
         int[] ruta = new int[rutaMejor.length];
-        ruta[0] = rutaMejor[0];
-        vueltaAtras(ruta, rutaMejor, 1, matdistancias);
+        vueltaAtras(ruta, rutaMejor, 0, matdistancias);
         return rutaMejor;
     }
 
     public static void vueltaAtras(int[] ruta, int[] rutaMejor, int pos, double[][] matdistancias) {
-        if (pos == ruta.length - 1) {
+        if (pos == ruta.length) {
             if (getDistanciaTotal(rutaMejor, matdistancias) > getDistanciaTotal(ruta, matdistancias)) {
                 System.arraycopy(ruta, 0, rutaMejor, 0, ruta.length);
             }
@@ -361,7 +361,7 @@ public class Trabajo2Algoritmica {
             if (getDistanciaTotal(mejorRuta, matdistancias) > getDistanciaTotal(rutaActual, matdistancias)) {
                 mejorRuta = rutaActual;
             }
-            criterioParada++;
+            i++;
         }
         return mejorRuta;
     }
@@ -383,11 +383,13 @@ public class Trabajo2Algoritmica {
         }
         System.out.println("tusmula");
          */
-        double[][] mat = GenerarMatriz();
-        int[] resultado = voraz(mat);
+        
+        int[] resultado =resolverVueltaAtras();
         for (int i = 0; i < resultado.length; i++) {
             System.out.print(resultado[i] + ", ");
         }
+        
+        
     }
 
     /*
@@ -398,6 +400,7 @@ public class Trabajo2Algoritmica {
     [0 3 2 1]
     [0 3 1 2] fin   
      */
+    
     private static int[] generaVecino(int[] rutaActual) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
