@@ -104,7 +104,7 @@ public class Trabajo2Algoritmica {
 
 //Método auxiliar para obtener la matriz de distancias
     public static double[][] GenerarMatriz() throws FileNotFoundException, IOException {
-        BufferedReader bf = new BufferedReader(new FileReader("berlin52.tsp"));
+        BufferedReader bf = new BufferedReader(new FileReader("vm1748.tsp"));
         String dimension = "";
         while (!dimension.startsWith("DIMENSION")) {
             dimension = bf.readLine();
@@ -147,14 +147,15 @@ public class Trabajo2Algoritmica {
     }
 
 //Métodos de resolucion con Vuelta Atrás   
-    public static int[] resolverVueltaAtras(int segundos) throws IOException {
+    public static int[] resolverVueltaAtras(int minutos) throws IOException {
         double[][] matdistancias = GenerarMatriz();
-        int[] rutaMejor = voraz(matdistancias);
+        int[] rutaMejor = getVectorInicial(matdistancias.length);
+        //int[] rutaMejor = voraz(matdistancias);
         int[] ruta = new int[rutaMejor.length];
 
         long[] n = {System.currentTimeMillis()};
 
-        vueltaAtras(ruta, rutaMejor, 0, matdistancias, n, n[0] + segundos * 1000);
+        vueltaAtras(ruta, rutaMejor, 0, matdistancias, n, n[0] + minutos * 60000);
         return rutaMejor;
     }
 
@@ -175,77 +176,6 @@ public class Trabajo2Algoritmica {
                 }
                 ciudad++;
                 start[0] = System.currentTimeMillis();
-            }
-        }
-    }
-
-//Algoritmo Divide y Vencerás
-    public static int[] divideYvenceras() throws IOException {
-        double[][] matdistancias = GenerarMatriz();
-        int[] ruta = getVectorInicial(matdistancias.length);
-        int resto = ruta.length % 4;
-        int[][] fragmentos = new int[ruta.length / 4][4];
-        //generamos los fragmentos de ruta de 4 ciudades
-        int j = 0, k = 0;
-        for (int i = 0; i < ruta.length - resto; i++) {
-            if (k == 4) {
-                k = 0;
-                j++;
-            }
-            fragmentos[j][k] = ruta[i];
-            k++;
-        }
-        int[] ciudadesRestantes = new int[resto];
-        j = 0;
-        for (int i = ruta.length - resto; i < ruta.length; i++) {
-            ciudadesRestantes[j] = ruta[i];
-        }
-        //aplicamos vuelta atrás a cada uno de esos fragmentos
-        for (int i = 0; i < ruta.length / 4; i++) {
-            int[] rutaAux = new int[4];
-            vueltaAtrasDV(rutaAux, fragmentos[i], 0, matdistancias, fragmentos[i][0]);
-        }
-        //creamos una matriz de distancias auxiliar de los fragmentos
-        double[][] mataux = new double[ruta.length / 4][ruta.length / 4];
-        for (int i = 0; i < mataux.length; i++) {
-            for (j = 0; j < mataux.length; j++) {
-                mataux[i][j] = matdistancias[fragmentos[i][3]][fragmentos[j][0]];
-            }
-        }
-        //aplicamos voraz a la nueva matriz de distancias de fragmentos        
-        int[] rutaFragmentos = voraz(mataux);
-        //reconstruimos la ruta resultante
-        k = 0;
-        for (int i = 0; i < rutaFragmentos.length;) {
-            for (j = 0; j < fragmentos[rutaFragmentos[k]].length; j++) {
-                ruta[i] = fragmentos[rutaFragmentos[k]][j];
-                i++;
-            }
-            k++;
-        }
-        j = 0;
-        for (int i = ruta.length - resto; i < ruta.length; i++) {
-            ruta[i] = ciudadesRestantes[j];
-        }
-        return ruta;
-    }
-
-//Vuelta atrás DV
-    public static void vueltaAtrasDV(int[] ruta, int[] rutaMejor, int pos, double[][] matdistancias, int ciudadinicio) {
-        if (pos == ruta.length) {
-            if (getDistanciaTotal(rutaMejor, matdistancias) > getDistanciaTotal(ruta, matdistancias)) {
-                System.arraycopy(ruta, 0, rutaMejor, 0, ruta.length);
-            }
-        } else {
-            int ciudad = ciudadinicio;
-            while (ciudad < ruta.length) {
-                if (!contains(ciudad, ruta, pos)) {
-                    ruta[pos] = ciudad;
-                    if (getDistanciaTotal(rutaMejor, matdistancias) > getDistanciaParcial(ruta, matdistancias, pos)) {
-                        vueltaAtrasDV(ruta, rutaMejor, pos + 1, matdistancias, ciudadinicio);
-                    }
-                }
-                ciudad++;
             }
         }
     }
@@ -337,7 +267,7 @@ public class Trabajo2Algoritmica {
 
 //Método auxiliar generaVecino (BL)
     private static int[] generaVecino(int[] rutaActual) {
-        int intercambios = 1;
+        int intercambios = 15;
         int[] rutaVecina = Arrays.copyOf(rutaActual, rutaActual.length);
 
         Random r = new Random();
@@ -361,24 +291,27 @@ public class Trabajo2Algoritmica {
     }
 
 //main
-    public static void main(String[] args) throws IOException {
-        testBL();
+    public static void main(String[] args) throws Exception {
+        testDyV();
     }
 
-    public static void testDyV() throws IOException {
+    public static void testDyV() throws Exception {
         double[][] mat = GenerarMatriz();
-        
+        int[] resul = new int[mat.length];
         System.out.println("\nResultado de divide y vencerás:");
         long ini = System.nanoTime();
-        int[] resul = divideYvenceras();
+        for (int i = 0; i < 1000; i++) {
+            resul = divideYVenceras(getVectorInicial(mat.length), mat);
+        }
         long fin = System.nanoTime();
-        System.out.println("\t" + (fin - ini) + "ns, " + getDistanciaTotal(resul, mat));
+
+        System.out.println("\n" + (fin - ini) / 1000 + "ns, " + getDistanciaTotal(resul, mat));
     }
 
     public static void testBL() throws IOException {
-        int[] repeticiones = {100000, 500000, 1000000, 2500000};
+        int[] repeticiones = {100000, 250000, 500000, 750000, 1000000, 2000000, 2500000};
         double[][] mat = GenerarMatriz();
-        
+
         System.out.println("\nResultados de pruebas para algoritmo de búsqueda local:");
         for (int i = 0; i < repeticiones.length; i++) {
             long ini = System.nanoTime();
@@ -389,13 +322,120 @@ public class Trabajo2Algoritmica {
     }
 
     public static void testVA() throws IOException {
-        int[] segundos = {1, 2, 3, 6};
+        int[] minutos = {1, 5, 10, 25};
         double[][] mat = GenerarMatriz();
 
         System.out.println("Resultados de pruebas para algoritmo de vuelta atrás:");
-        for (int i = 0; i < segundos.length; i++) {
-            int[] resul = resolverVueltaAtras(segundos[i]);
-            System.out.println("\tPara " + segundos[i] + "s, " + getDistanciaTotal(resul, mat));
+        int[] inicial = getVectorInicial(mat.length);
+        System.out.println("Distancia inicial(vector inicial): " + getDistanciaTotal(inicial, mat));
+        for (int i = 0; i < minutos.length; i++) {
+
+            int[] resul = resolverVueltaAtras(minutos[i]);
+            System.out.println("\tPara " + minutos[i] + " minuto(s), " + getDistanciaTotal(resul, mat));
         }
+    }
+
+    public static int[] divideYVenceras(int[] ruta, double[][] mat) throws Exception {
+        int k;
+        int[][] subrutas = new int[2][];
+        int[][] subsoluciones = new int[2][];
+        if (ruta.length == 2) {
+            ruta = resolverCasoBase(ruta, mat);
+        } else if (ruta.length > 2) {
+            descomponer(ruta, subrutas);
+            for (int i = 0; i < 2; i++) {
+                subsoluciones[i] = divideYVenceras(subrutas[i], mat);
+            }
+            ruta = combina(subsoluciones, mat);
+
+        }
+
+        return ruta;
+
+    }
+
+    public static int[] resolverCasoBase(int[] ruta, double[][] mat) {
+        int aux;
+        if (mat[ruta[1]][ruta[0]] < mat[ruta[0]][ruta[1]]) {
+            aux = ruta[0];
+            ruta[0] = ruta[1];
+            ruta[1] = aux;
+
+        }
+        return ruta;
+    }
+
+    private static void descomponer(int[] ruta, int[][] subrutas) {
+        int i, mitad = ruta.length / 2;
+        if (ruta.length % 2 == 0) {
+            subrutas[0] = new int[mitad];
+            subrutas[1] = new int[mitad];
+
+            for (i = 0; i < mitad; i++) {
+                subrutas[0][i] = ruta[i];
+            }
+            for (i = 0; i < mitad; i++) {
+                subrutas[1][i] = ruta[mitad + i];
+            }
+        } else {
+            subrutas[0] = new int[mitad];
+            subrutas[1] = new int[mitad + 1];
+
+            for (i = 0; i < mitad; i++) {
+                subrutas[0][i] = ruta[i];
+            }
+            for (i = 0; i <= mitad; i++) {
+                subrutas[1][i] = ruta[mitad + i];
+            }
+        }
+
+    }
+
+    private static int[] combina(int[][] subsoluciones, double[][] mat) {
+        int ruta[] = new int[subsoluciones[0].length + subsoluciones[1].length];
+        int fin0 = subsoluciones[0].length - 1;
+        int fin1 = subsoluciones[1].length - 1;
+        int i;
+        int mitad = ruta.length / 2;
+        if (ruta.length % 2 == 0) {
+
+            if (mat[subsoluciones[0][fin0]][subsoluciones[1][0]] < mat[subsoluciones[1][fin1]][subsoluciones[0][0]]) {
+
+                for (i = 0; i < mitad; i++) {
+                    ruta[i] = subsoluciones[0][i];
+                }
+                for (i = 0; i < mitad; i++) {
+                    ruta[mitad + i] = subsoluciones[1][i];
+                }
+            } else {
+                for (i = 0; i < mitad; i++) {
+                    ruta[i] = subsoluciones[1][i];
+                }
+                for (i = 0; i < mitad; i++) {
+                    ruta[mitad + i] = subsoluciones[0][i];
+                }
+            }
+
+        } else {
+
+            if (mat[subsoluciones[0][fin0]][subsoluciones[1][0]] < mat[subsoluciones[1][fin1]][subsoluciones[0][0]]) {
+
+                for (i = 0; i < mitad; i++) {
+                    ruta[i] = subsoluciones[0][i];
+                }
+                for (i = 0; i <= mitad; i++) {
+                    ruta[mitad + i] = subsoluciones[1][i];
+                }
+            } else {
+                for (i = 0; i <= mitad; i++) {
+                    ruta[i] = subsoluciones[1][i];
+                }
+                for (i = 0; i < mitad; i++) {
+                    ruta[mitad + i + 1] = subsoluciones[0][i];
+                }
+            }
+        }
+
+        return ruta;
     }
 }
