@@ -224,16 +224,14 @@ public class Trabajo2Algoritmica {
         int[] mejorRuta = voraz(matdistancias);
         int[] rutaActual = Arrays.copyOf(mejorRuta, mejorRuta.length);
 
-        int i = 0;
-        while (i < criterioParada) {
-            int[] rutaVecina = generaVecino(rutaActual);
+        for (int i = 0; i < criterioParada; i++) {
+            int[] rutaVecina = generaVecino(rutaActual, matdistancias);
             if (acepta(rutaActual, rutaVecina, matdistancias)) {
                 System.arraycopy(rutaVecina, 0, rutaActual, 0, rutaActual.length);
             }
             if (getDistanciaTotal(mejorRuta, matdistancias) > getDistanciaTotal(rutaActual, matdistancias)) {
                 System.arraycopy(rutaActual, 0, mejorRuta, 0, mejorRuta.length);
             }
-            i++;
         }
         return mejorRuta;
     }
@@ -266,26 +264,75 @@ public class Trabajo2Algoritmica {
     }
 
 //Método auxiliar generaVecino (BL)
-    private static int[] generaVecino(int[] rutaActual) {
-        int intercambios = 15;
+    public static int[] generaVecino(int[] rutaActual, double[][] matdistancias) {
+        int origen = rutaActual[0], destino = rutaActual[1], aux;
         int[] rutaVecina = Arrays.copyOf(rutaActual, rutaActual.length);
+        int[] intercambios = new int[(rutaActual.length / 100 + 1) * 2];
+        intercambios[0] = 0;
+        intercambios[1] = 1;
 
-        Random r = new Random();
-        int indiceAleatorio_1, indiceAleatorio_2, aux;
+        for (int j = 0; j < intercambios.length; j = j + 2) {
 
-        for (int i = 0; i < intercambios; i++) {
-            indiceAleatorio_1 = r.nextInt(rutaActual.length);
-            indiceAleatorio_2 = r.nextInt(rutaActual.length);
+            for (int i = 1; i < rutaVecina.length - 1; i++) {
+                int origenAux = rutaActual[i];
+                int destinoAux = rutaActual[i + 1];
+                if (matdistancias[origen][destino] < matdistancias[origenAux][destinoAux] && !contains(i, intercambios, j + 1)) {
+                    origen = origenAux;
+                    destino = destinoAux;
+                    intercambios[j] = i;
+                    intercambios[j + 1] = i + 1;
+                }
+            }
+        }
 
-            aux = rutaVecina[indiceAleatorio_1];
-            rutaVecina[indiceAleatorio_1] = rutaVecina[indiceAleatorio_2];
-            rutaVecina[indiceAleatorio_2] = aux;
+        int[] intercAux = Arrays.copyOf(intercambios, intercambios.length);
+        for (int i = 0; i < rutaVecina.length; i++) {
+            rutaAleatoria(intercAux);
+            getDistanciaLocal(intercambios, rutaVecina, matdistancias);
+            if (getDistanciaLocal(intercambios, rutaVecina, matdistancias) > getDistanciaLocal(intercAux, rutaVecina, matdistancias)) {
+                System.arraycopy(intercAux, 0, intercambios, 0, intercambios.length);
+            }
+        }
+
+        for (int i = 0; i < intercambios.length - 1; i = i + 2) {
+            aux = rutaVecina[intercambios[i]];
+            rutaVecina[intercambios[i]] = rutaVecina[intercambios[i + 1]];
+            rutaVecina[intercambios[i + 1]] = aux;
         }
 
         return rutaVecina;
     }
 
+    public static double getDistanciaLocal(int intercambios[], int[] ruta, double[][] matdistancias) {
+
+        double distanciaTotal = 0;
+
+        for (int i = 0; i < intercambios.length - 1; i = i + 2) {
+
+            int ciudadActual = ruta[intercambios[i]];
+            int ciudadSiguiente = ruta[intercambios[i + 1]];
+            distanciaTotal += matdistancias[ciudadActual][ciudadSiguiente];
+        }
+
+        return distanciaTotal;
+    }
+
+    public static void rutaAleatoria(int[] rutaActual) {
+        Random r = new Random();
+        int indiceAleatorio_1, indiceAleatorio_2, aux;
+
+        for (int i = 0; i < rutaActual.length; i++) {
+            indiceAleatorio_1 = r.nextInt(rutaActual.length);
+            indiceAleatorio_2 = r.nextInt(rutaActual.length);
+
+            aux = rutaActual[indiceAleatorio_1];
+            rutaActual[indiceAleatorio_1] = rutaActual[indiceAleatorio_2];
+            rutaActual[indiceAleatorio_2] = aux;
+        }
+
+    }
 //Método auxiliar acepta (BL)
+
     private static boolean acepta(int[] rutaActual, int[] rutaVecina, double[][] matdistancias) {
         return 0.9 * getDistanciaTotal(rutaVecina, matdistancias) < getDistanciaTotal(rutaActual, matdistancias);
     }
@@ -309,15 +356,17 @@ public class Trabajo2Algoritmica {
     }
 
     public static void testBL() throws IOException {
-        int[] repeticiones = {100000, 250000, 500000, 750000, 1000000, 2000000, 2500000};
+        int[] repeticiones = {100, 500, 1000, 2500, 5000};
         double[][] mat = GenerarMatriz();
-
+        int[] resul = new int[mat.length];
         System.out.println("\nResultados de pruebas para algoritmo de búsqueda local:");
         for (int i = 0; i < repeticiones.length; i++) {
             long ini = System.nanoTime();
-            int[] resul = resolverBusquedaLocal(mat, repeticiones[i]);
+            for (int j = 0; j< 100;j++){
+            resul = resolverBusquedaLocal(mat, repeticiones[i]);
+            }
             long fin = System.nanoTime();
-            System.out.println("\tPara " + repeticiones[i] + " reps, " + (fin - ini) + "ns, " + getDistanciaTotal(resul, mat));
+            System.out.println("\tPara " + repeticiones[i] + " reps, " + (fin - ini)/100 + "ns, " + getDistanciaTotal(resul, mat));
         }
     }
 
