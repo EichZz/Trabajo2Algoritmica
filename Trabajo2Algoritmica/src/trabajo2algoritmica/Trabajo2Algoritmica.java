@@ -104,7 +104,7 @@ public class Trabajo2Algoritmica {
 
 //Método auxiliar para obtener la matriz de distancias
     public static double[][] GenerarMatriz() throws FileNotFoundException, IOException {
-        BufferedReader bf = new BufferedReader(new FileReader("kroA100.tsp"));
+        BufferedReader bf = new BufferedReader(new FileReader("vm1084.tsp"));
         String dimension = "";
         while (!dimension.startsWith("DIMENSION")) {
             dimension = bf.readLine();
@@ -175,95 +175,6 @@ public class Trabajo2Algoritmica {
                 }
                 ciudad++;
                 start[0] = System.currentTimeMillis();
-            }
-        }
-    }
-
-//Algoritmo Divide y Vencerás
-    public static int[] divideYvenceras() throws IOException {
-        double[][] matdistancias = GenerarMatriz();
-        int[] ruta = getVectorInicial(matdistancias.length);
-        int resto = ruta.length % 4;
-        int[][] fragmentos = new int[ruta.length / 4][4];
-        //generamos los fragmentos de ruta de 4 ciudades
-        int j = 0, k = 0;
-        for (int i = 0; i < ruta.length - resto; i++) {
-            if (k == 4) {
-                k = 0;
-                j++;
-            }
-            fragmentos[j][k] = ruta[i];
-            k++;
-        }
-        int[] ciudadesRestantes = new int[resto];
-        j = 0;
-        for (int i = ruta.length - resto; i < ruta.length; i++) {
-            ciudadesRestantes[j] = ruta[i];
-        }
-        //aplicamos vuelta atrás a cada uno de esos fragmentos
-        for (int i = 0; i < ruta.length / 4; i++) {
-            int[] rutaAux = new int[4];
-            vueltaAtrasDV(rutaAux, fragmentos[i], 0, matdistancias, fragmentos[i][0]);
-        }
-        //creamos una matriz de distancias auxiliar de los fragmentos
-        double[][] mataux = new double[ruta.length / 4][ruta.length / 4];
-        for (int i = 0; i < mataux.length; i++) {
-            for (j = 0; j < mataux.length; j++) {
-                mataux[i][j] = matdistancias[fragmentos[i][3]][fragmentos[j][0]];
-            }
-        }
-        //aplicamos voraz a la nueva matriz de distancias de fragmentos        
-        int[] rutaFragmentos = voraz(mataux);
-        //reconstruimos la ruta resultante
-        k = 0;
-        for (int i = 0; i < ruta.length - resto;) {
-            for (j = 0; j < 4; j++) {
-                ruta[i] = fragmentos[rutaFragmentos[k]][j];
-                i++;
-            }
-            k++;
-        }
-        j = 0;
-        for (int i = ruta.length - resto; i < ruta.length; i++) {
-            mejorPosicion(ruta, ciudadesRestantes[j], matdistancias, ruta.length - resto + j);
-            j++;
-        }
-        return ruta;
-    }
-
-    public static void mejorPosicion(int[] ruta, int ciudad, double[][] matdistancias, int limite) {
-        int origen = ruta[0], destino = ruta[1], pos = 0;
-        for (int i = 1; i < limite - 1; i++) {
-            int origenAux = ruta[i];
-            int destinoAux = ruta[i + 1];
-            if (matdistancias[origen][ciudad] + matdistancias[ciudad][destino] > matdistancias[origenAux][ciudad] + matdistancias[ciudad][destinoAux]) {
-                origen = origenAux;
-                destino = destinoAux;
-                pos = i;
-            }
-        }
-        for (int i = limite; i < pos; i--) {
-            ruta[i] = ruta[i - 1];
-        }
-        ruta[pos] = ciudad;
-    }
-
-//Vuelta atrás DV
-    public static void vueltaAtrasDV(int[] ruta, int[] rutaMejor, int pos, double[][] matdistancias, int ciudadinicio) {
-        if (pos == ruta.length) {
-            if (getDistanciaTotal(rutaMejor, matdistancias) > getDistanciaTotal(ruta, matdistancias)) {
-                System.arraycopy(ruta, 0, rutaMejor, 0, ruta.length);
-            }
-        } else {
-            int ciudad = ciudadinicio;
-            while (ciudad < ruta.length) {
-                if (!contains(ciudad, ruta, pos)) {
-                    ruta[pos] = ciudad;
-                    if (getDistanciaTotal(rutaMejor, matdistancias) > getDistanciaParcial(ruta, matdistancias, pos)) {
-                        vueltaAtrasDV(ruta, rutaMejor, pos + 1, matdistancias, ciudadinicio);
-                    }
-                }
-                ciudad++;
             }
         }
     }
@@ -430,17 +341,7 @@ public class Trabajo2Algoritmica {
         testBL();
     }
 
-    public static void testDyV() throws IOException {
-        double[][] mat = GenerarMatriz();
-        int[] resul = divideYvenceras();
-        System.out.println("\nResultado de divide y vencerás:");
-        long ini = System.nanoTime();
-        for (int i = 0; i < 1000; i++) {
-            resul = divideYvenceras();
-        }
-        long fin = System.nanoTime();
-        System.out.println("\t" + ((fin - ini) / 1000) + "ns, " + getDistanciaTotal(resul, mat));
-    }
+    
 
     public static void testBL() throws IOException {
         int[] repeticiones = {100, 500, 1000, 2500, 5000};
@@ -449,11 +350,11 @@ public class Trabajo2Algoritmica {
         System.out.println("\nResultados de pruebas para algoritmo de búsqueda local:");
         for (int i = 0; i < repeticiones.length; i++) {
             long ini = System.nanoTime();
-            for (int j = 0; j< 100;j++){
+            for (int j = 0; j< 1;j++){
             resul = resolverBusquedaLocal(mat, repeticiones[i]);
             }
             long fin = System.nanoTime();
-            System.out.println("\tPara " + repeticiones[i] + " reps, " + (fin - ini)/100 + "ns, " + getDistanciaTotal(resul, mat));
+            System.out.println("\tPara " + repeticiones[i] + " reps, " + (fin - ini)/1 + "ns, " + getDistanciaTotal(resul, mat));
         }
     }
 
