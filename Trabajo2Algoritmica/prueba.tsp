@@ -1,0 +1,11 @@
+NAME: kroA100
+TYPE: TSP
+COMMENT: 100-city problem A (Krolak/Felts/Nelson)
+DIMENSION: 5
+EDGE_WEIGHT_TYPE : EUC_2D
+NODE_COORD_SECTION
+1 0 0
+2 0 3
+3 0 7
+4 0 15
+5 0 22
