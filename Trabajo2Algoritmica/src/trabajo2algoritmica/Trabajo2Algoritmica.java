@@ -103,8 +103,8 @@ public class Trabajo2Algoritmica {
     }
 
 //Método auxiliar para obtener la matriz de distancias
-    public static double[][] GenerarMatriz() throws FileNotFoundException, IOException {
-        BufferedReader bf = new BufferedReader(new FileReader("vm1748.tsp"));
+    public static double[][] GenerarMatriz(String fichero) throws FileNotFoundException, IOException {
+        BufferedReader bf = new BufferedReader(new FileReader(fichero));
         String dimension = "";
         while (!dimension.startsWith("DIMENSION")) {
             dimension = bf.readLine();
@@ -147,14 +147,10 @@ public class Trabajo2Algoritmica {
     }
 
 //Métodos de resolucion con Vuelta Atrás   
-    public static int[] resolverVueltaAtras(int minutos) throws IOException {
-        double[][] matdistancias = GenerarMatriz();
+    public static int[] resolverVueltaAtras(int minutos, double[][] matdistancias) throws IOException {
         int[] rutaMejor = getVectorInicial(matdistancias.length);
-        //int[] rutaMejor = voraz(matdistancias);
         int[] ruta = new int[rutaMejor.length];
-
         long[] n = {System.currentTimeMillis()};
-
         vueltaAtras(ruta, rutaMejor, 0, matdistancias, n, n[0] + minutos * 60000);
         return rutaMejor;
     }
@@ -193,11 +189,8 @@ public class Trabajo2Algoritmica {
                 subsoluciones[i] = divideYVenceras(subrutas[i], mat);
             }
             ruta = combina(subsoluciones, mat);
-
         }
-
         return ruta;
-
     }
 
     public static int[] resolverCasoBase(int[] ruta, double[][] mat) {
@@ -206,7 +199,6 @@ public class Trabajo2Algoritmica {
             aux = ruta[0];
             ruta[0] = ruta[1];
             ruta[1] = aux;
-
         }
         return ruta;
     }
@@ -370,14 +362,16 @@ public class Trabajo2Algoritmica {
 
 //Método auxiliar generaVecino (BL)
     public static int[] generaVecino(int[] rutaActual, double[][] matdistancias) {
-        int origen = rutaActual[0], destino = rutaActual[1], aux;
         int[] rutaVecina = Arrays.copyOf(rutaActual, rutaActual.length);
-        int[] intercambios = new int[(rutaActual.length / 100 + 1) * 2];
+        Random r = new Random();
+        int n = r.nextInt(50) + 50;
+        int[] intercambios = new int[(rutaActual.length / n + 1) * 2];
         intercambios[0] = 0;
         intercambios[1] = 1;
 
         for (int j = 0; j < intercambios.length; j = j + 2) {
-
+            int origen = rutaActual[0];
+            int destino = rutaActual[1];
             for (int i = 1; i < rutaVecina.length - 1; i++) {
                 int origenAux = rutaActual[i];
                 int destinoAux = rutaActual[i + 1];
@@ -391,14 +385,14 @@ public class Trabajo2Algoritmica {
         }
 
         int[] intercAux = Arrays.copyOf(intercambios, intercambios.length);
-        for (int i = 0; i < rutaVecina.length; i++) {
+        for (int i = 0; i < rutaVecina.length * 100; i++) {
             rutaAleatoria(intercAux);
-            getDistanciaLocal(intercambios, rutaVecina, matdistancias);
             if (getDistanciaLocal(intercambios, rutaVecina, matdistancias) > getDistanciaLocal(intercAux, rutaVecina, matdistancias)) {
                 System.arraycopy(intercAux, 0, intercambios, 0, intercambios.length);
             }
         }
 
+        int aux;
         for (int i = 0; i < intercambios.length - 1; i = i + 2) {
             aux = rutaVecina[intercambios[i]];
             rutaVecina[intercambios[i]] = rutaVecina[intercambios[i + 1]];
@@ -444,51 +438,55 @@ public class Trabajo2Algoritmica {
 
 //main
     public static void main(String[] args) throws Exception {
-        //Para cambiar el fichero de prueba deberá cambiarse en GenerarMatriz(), linea 107
-        testVA();
-        testDyV();
-        testBL();
+        String[] instancias = {"berlin52.tsp", "kroA100.tsp", "kroA150.tsp", "kroA200.tsp", "a280.tsp", "vm1084.tsp", "vm1748.tsp"};
+        for (String instancia : instancias) {
+            System.out.println("\n------------------------------------\n"
+                    + "Pruebas para el fichero: " + instancia
+                    + "\n------------------------------------");
+            testVA(instancia);
+            testDyV(instancia);
+            testBL(instancia);
+        }
     }
 
-    public static void testDyV() throws Exception {
-        double[][] mat = GenerarMatriz();
+    public static void testDyV(String fichero) throws Exception {
+        double[][] mat = GenerarMatriz(fichero);
         int[] resul = new int[mat.length];
-        System.out.println("\nResultado de divide y vencerás:");
+        System.out.println("\nResultado de prueba para algoritmo divide y vencerás:");
         long ini = System.nanoTime();
         for (int i = 0; i < 1000; i++) {
             resul = divideYVenceras(getVectorInicial(mat.length), mat);
         }
         long fin = System.nanoTime();
 
-        System.out.println("\n" + (fin - ini) / 1000 + "ns, " + getDistanciaTotal(resul, mat));
+        System.out.println("\t" + (fin - ini) / 1000 + "ns, " + getDistanciaTotal(resul, mat));
     }
 
-    public static void testBL() throws IOException {
+    public static void testBL(String fichero) throws IOException {
         int[] repeticiones = {100, 500, 1000, 2500, 5000};
-        double[][] mat = GenerarMatriz();
+        double[][] mat = GenerarMatriz(fichero);
         int[] resul = new int[mat.length];
         System.out.println("\nResultados de pruebas para algoritmo de búsqueda local:");
-        for (int i = 0; i < repeticiones.length; i++) {
+        for (int reps : repeticiones) {
             long ini = System.nanoTime();
-            for (int j = 0; j < 1; j++) {
-                resul = resolverBusquedaLocal(mat, repeticiones[i]);
+            for (int j = 0; j < 10; j++) {
+                resul = resolverBusquedaLocal(mat, reps);
             }
             long fin = System.nanoTime();
-            System.out.println("\tPara " + repeticiones[i] + " reps, " + (fin - ini) / 1 + "ns, " + getDistanciaTotal(resul, mat));
+            System.out.println("\tPara " + reps + " reps, " + (fin - ini) / 10 + "ns, " + getDistanciaTotal(resul, mat));
         }
     }
 
-    public static void testVA() throws IOException {
+    public static void testVA(String fichero) throws IOException {
         int[] minutos = {1, 5, 10, 25};
-        double[][] mat = GenerarMatriz();
+        double[][] mat = GenerarMatriz(fichero);
 
-        System.out.println("Resultados de pruebas para algoritmo de vuelta atrás:");
+        System.out.println("\nResultados de pruebas para algoritmo de vuelta atrás:");
         int[] inicial = getVectorInicial(mat.length);
-        System.out.println("Distancia inicial(vector inicial): " + getDistanciaTotal(inicial, mat));
-        for (int i = 0; i < minutos.length; i++) {
-
-            int[] resul = resolverVueltaAtras(minutos[i]);
-            System.out.println("\tPara " + minutos[i] + " minuto(s), " + getDistanciaTotal(resul, mat));
+        System.out.println("\tDistancia inicial (vector inicial): " + getDistanciaTotal(inicial, mat));
+        for (int mins : minutos) {
+            int[] resul = resolverVueltaAtras(mins, mat);
+            System.out.println("\tPara " + mins + " minuto(s), " + getDistanciaTotal(resul, mat));
         }
     }
 }
